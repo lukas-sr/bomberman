@@ -1,1 +1,2 @@
-# Bomberman
+# Bomberman RPG
+Using SDL & C++
