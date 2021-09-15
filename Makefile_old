@@ -1,0 +1,5 @@
+
+all : tutorial
+
+tutorial : src/tutorial.cpp
+	g++ -otutorial src/tutorial.cpp -lSDL2 -lSDL2_image
