@@ -43,7 +43,7 @@ void ModelPersonagem::set_personagem(ModelMapp &M){
 	if(xini > MAX_I-1)
 	    xini = 15;
   
-	if(yini>MAX_J-1)
+	if(yini > MAX_J-1)
     	yini = 15;        
 	
 	M.terreno[xini][yini] = 0;
@@ -60,22 +60,26 @@ class ControllerPersonagem{
 };
 
 void ControllerPersonagem::move(ModelMapp &M, ModelPersonagem &P, int x, int y){
-	M.terreno[P.posicao[0]][P.posicao[1]] = 1; //Desocupa posicao antiga
 	
-	P.posicao[0] = P.posicao[0] +x;
-	P.posicao[1] = P.posicao[1] +y;
+  // Desocupa posição antiga
+  M.terreno[P.posicao[0]][P.posicao[1]] = 1;
 	
-	if(P.posicao[0] > MAX_I -1)
-                P.posicao[0]  = MAX_I -1;
-        else if(P.posicao[0] < 0)
-        	P.posicao[0] = 0;
+  // Incrementa posição por x e por y
+	P.posicao[0] += x;
+	P.posicao[1] += y;
+	
+	if(P.posicao[0] > MAX_I-1)
+    P.posicao[0]  = MAX_I-1;
+  else if(P.posicao[0] < 0)
+    P.posicao[0] = 0;
         	
-        if(P.posicao[1]>MAX_J-1)
-        	P.posicao[1] = MAX_J-1;        
-	else if(P.posicao[1]<0)
-		P.posicao[1] =0;
+  if(P.posicao[1] > MAX_J-1)
+    P.posicao[1] = MAX_J-1;        
+  else if(P.posicao[1] < 0)
+		P.posicao[1]=0;
 	
-	M.terreno[P.posicao[0]][P.posicao[1]] = 0; // Ocupa a nova posicao
+  // Ocupa nova posição
+	M.terreno[P.posicao[0]][P.posicao[1]] = 0;
 	
 }
 
@@ -87,7 +91,6 @@ class ViewerPersonagem{
 ViewerPersonagem::ViewerPersonagem(ModelMapp &M, ModelPersonagem &P, ControllerPersonagem &C, bool rodando){
 
   // Inicializando o subsistema de video do SDL
-
   if ( SDL_Init (SDL_INIT_VIDEO) < 0 ) {
     std::cout << SDL_GetError();
     SDL_Quit();
@@ -114,7 +117,8 @@ ViewerPersonagem::ViewerPersonagem(ModelMapp &M, ModelPersonagem &P, ControllerP
       window, -1,
       SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
   
-  if (renderer == nullptr) { // Em caso de erro...
+  // Caso não consiga renderizar a janela corretamente
+  if (renderer == nullptr) { 
     SDL_DestroyWindow(window);
     std::cout << SDL_GetError();
     SDL_Quit();
@@ -129,12 +133,11 @@ ViewerPersonagem::ViewerPersonagem(ModelMapp &M, ModelPersonagem &P, ControllerP
 
   // Quadrado onde a textura sera desenhada
   SDL_Rect target;
+
   target.x = P.posicao[0]*SECOES_X;
   target.y = P.posicao[1]*SECOES_Y;
+  
   SDL_QueryTexture(personagem, nullptr, nullptr, &target.w, &target.h);
-
-  // Controlador:
-  //bool rodando = true;
 
   // Variaveis para verificar eventos
   SDL_Event evento; // eventos discretos
@@ -142,36 +145,36 @@ ViewerPersonagem::ViewerPersonagem(ModelMapp &M, ModelPersonagem &P, ControllerP
 
   while(rodando) {
     // Polling de eventos
-    SDL_PumpEvents(); // atualiza estado do teclado
+    // atualiza estado do teclado
+    SDL_PumpEvents(); 
           
     if (state[SDL_SCANCODE_LEFT]){
-    	C.move(M,P,-1,0);                     // altera mapa e posicao
-    	target.x = (P.posicao[0])*SECOES_X;  // atualiza viewer com a nova posicao
-    	}
+    	// altera mapa e posicao
+      C.move(M,P,-1,0);
+      // atualiza viewer com a nova posicao
+    	target.x = (P.posicao[0])*SECOES_X;  
+    }
+
     if (state[SDL_SCANCODE_RIGHT]){
      	C.move(M,P,1,0); 
      	target.x = (P.posicao[0])*SECOES_X;
-     	}
+    }
+    
     if (state[SDL_SCANCODE_UP]){ 
     	C.move(M,P,0,-1); 
     	target.y = (P.posicao[1])*SECOES_Y;
-    	}
+    }
+    
     if (state[SDL_SCANCODE_DOWN]){
     	C.move(M,P,0,1);  
     	target.y = (P.posicao[1])*SECOES_Y;
-	}
+	  }
 
     while (SDL_PollEvent(&evento)) {
     	if (evento.type == SDL_QUIT) {
-        	rodando = false;
-		}
-      // Exemplos de outros eventos.
-      // Que outros eventos poderiamos ter e que sao uteis?
-      //if (evento.type == SDL_KEYDOWN) {
-      //}
-      //if (evento.type == SDL_MOUSEBUTTONDOWN) {
-      //}
-		    }
+        rodando = false;
+		  }
+    }
 
     // Desenhar a cena
     SDL_RenderClear(renderer);
@@ -181,18 +184,16 @@ ViewerPersonagem::ViewerPersonagem(ModelMapp &M, ModelPersonagem &P, ControllerP
 
     // Delay para diminuir o framerate
     SDL_Delay(75);
-  	}
+  }
 
-//void ViewerPersonagem::destroyer(ViewerPersonagem &V){
   SDL_DestroyTexture(personagem);
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
   SDL_Quit();	
-  
+    
 }
 
 int main() {
-
 	ModelMapp M;
 	ModelPersonagem P1;
 	ControllerPersonagem C1;
