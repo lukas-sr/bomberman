@@ -1,35 +1,164 @@
 #include <iostream>
-#include <math.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include "func.h"
 
-void Model::set_parametros(float new_m, float new_b, float new_k){
+void ModelMapp::mapp_terrain(){
 
-	m = new_m;
-	b = new_b;
-	k = new_k;
-};
+//  1 posição habilitada/disponivel
+//  0 posição a ser habilitada (blocos a serem destruídos)
+// -1 posição indisponível
 
-
-float Controller::solve(Model M, float t, float T, float delta, float new_m, float new_b, float new_k, float *x_new, float *x_old, float *vx){
-
-	float w, alpha, ww = new_k/new_m; 
-	
-	w = sqrt(ww);
-	alpha = new_b/(new_m*2*w);
-	float x, vx_new; // variaveis auxiliares
-	
-	M.set_parametros(new_m,new_b,new_k);
-	// Atualiza a variavel auxiliar x antes de rodar o método	
-	x = (*vx)*delta + (*x_old);
-	//Novos valores de posição e velocidade
-	*x_new = (x*(-ww*delta*delta +2) + (*x_old)*(alpha*delta*w -1))/(1 + delta*alpha*w);
-	vx_new = ((*x_new)-(*x_old))/(2*delta);
-	//Atualiza ponteiros	
-	*x_old = x;
-	x = (*x_new);
-	*vx = vx_new;
-
-	printf("%f %f\n", *x_new, *vx);
-	return *x_new;
+	for( unsigned int i=0 ; i < MAX_I ; i++ ){
+		for( unsigned int j=0 ; j < MAX_J ; j++ ){
+		  terreno[i][j] = 1;
+    }
+	}
 }
 
+void ModelPersonagem::set_personagem(ModelMapp &M){
+	
+	int xini, yini;
+	std::cin>>xini;
+	std::cin>>yini;
+	
+	if(xini > MAX_I-1)
+	    xini = MAX_I-1;
+  
+	if(yini > MAX_J-1)
+    	yini = MAX_J-1;        
+	
+	M.terreno[xini][yini] = 0;
+	
+	posicao[0] = xini;
+	posicao[1] = yini;
+
+}
+
+void ControllerPersonagem::move(ModelMapp &M, ModelPersonagem &P, int x, int y){
+	
+  // Desocupa posição antiga
+  M.terreno[P.posicao[0]][P.posicao[1]] = 1;
+	
+  // Incrementa posição por x e por y
+	P.posicao[0] += x;
+	P.posicao[1] += y;
+	
+	if(P.posicao[0] > MAX_I-1)
+    P.posicao[0] = MAX_I-1;
+  else if(P.posicao[0] < 0)
+    P.posicao[0] = 0;
+
+  if(P.posicao[1] > MAX_J-1)
+    P.posicao[1] = MAX_J-1;        
+  else if(P.posicao[1] < 0)
+		P.posicao[1]=0;
+	
+  // Ocupa nova posição
+	M.terreno[P.posicao[0]][P.posicao[1]] = 0;
+	
+}
+
+ViewerPersonagem::ViewerPersonagem(ModelMapp &M, ModelPersonagem &P, ControllerPersonagem &C, bool rodando){
+
+  // Inicializando o subsistema de video do SDL
+  if ( SDL_Init (SDL_INIT_VIDEO) < 0 ) {
+    std::cout << SDL_GetError();
+    SDL_Quit();
+  }
+
+  // Criando uma janela
+  SDL_Window* window = nullptr;
+
+  window = SDL_CreateWindow("BombermanRPG v0.01",
+      SDL_WINDOWPOS_UNDEFINED,
+      SDL_WINDOWPOS_UNDEFINED,
+      SCREEN_WIDTH,
+      SCREEN_HEIGHT,
+      SDL_WINDOW_SHOWN);
+  
+  // Caso a janela não tiver sido setada corretamente
+  if (window == nullptr) {
+    std::cout << SDL_GetError();
+    SDL_Quit();
+  }
+
+  // Inicializando o renderizador
+  SDL_Renderer* renderer = SDL_CreateRenderer(
+      window, -1,
+      SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+  
+  // Caso não consiga renderizar a janela corretamente
+  if (renderer == nullptr) { 
+    SDL_DestroyWindow(window);
+    std::cout << SDL_GetError();
+    SDL_Quit();
+  }
+
+  // Carregando texturas
+  // personagem
+  SDL_Texture *personagem = IMG_LoadTexture(renderer, "../assets/bomberman.png");
+  // background
+  SDL_Texture *tabuleiro = IMG_LoadTexture(renderer, "../assets/tabuleiro.png");
+
+  // Quadrado onde a textura sera desenhada
+  SDL_Rect target;
+
+  target.x = P.posicao[0]*SECOES_X;
+  target.y = P.posicao[1]*SECOES_Y;
+  
+  SDL_QueryTexture(personagem, nullptr, nullptr, &target.w, &target.h);
+
+  // Variaveis para verificar eventos
+  SDL_Event evento; // eventos discretos
+  const Uint8* state = SDL_GetKeyboardState(nullptr); // estado do teclado
+
+  while(rodando) {
+    // Polling de eventos
+    // atualiza estado do teclado
+    SDL_PumpEvents(); 
+          
+    if (state[SDL_SCANCODE_LEFT]){
+    	// altera mapa e posicao
+      C.move(M,P,-1,0);
+      // atualiza viewer com a nova posicao
+    	target.x = (P.posicao[0])*SECOES_X;  
+    }
+
+    if (state[SDL_SCANCODE_RIGHT]){
+     	C.move(M,P,1,0); 
+     	target.x = (P.posicao[0])*SECOES_X;
+    }
+    
+    if (state[SDL_SCANCODE_UP]){ 
+    	C.move(M,P,0,-1); 
+    	target.y = (P.posicao[1])*SECOES_Y;
+    }
+    
+    if (state[SDL_SCANCODE_DOWN]){
+    	C.move(M,P,0,1);  
+    	target.y = (P.posicao[1])*SECOES_Y;
+	  }
+
+    while (SDL_PollEvent(&evento)) {
+    	if (evento.type == SDL_QUIT) {
+        rodando = false;
+		  }
+    }
+
+    // Desenhar a cena
+    SDL_RenderClear(renderer);
+    SDL_RenderCopy(renderer, tabuleiro, nullptr, nullptr);
+    SDL_RenderCopy(renderer, personagem, nullptr, &target);
+    SDL_RenderPresent(renderer);
+
+    // Delay para diminuir o framerate
+    SDL_Delay(60);
+  }
+
+  SDL_DestroyTexture(personagem);
+  SDL_DestroyRenderer(renderer);
+  SDL_DestroyWindow(window);
+  SDL_Quit();	
+    
+}

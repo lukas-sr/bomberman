@@ -2,24 +2,34 @@
 
 #include <iostream>
 
-class Model{
-	private:
-		float m,b,k;
-	
+const int MAX_I = 16;
+const int MAX_J = 16;
+const int SCREEN_WIDTH = 512;
+const int SCREEN_HEIGHT = 512;
+const int SECOES_X = SCREEN_WIDTH/MAX_I;
+const int SECOES_Y = SCREEN_HEIGHT/MAX_J;
+
+class ModelMapp{
+	public:
+		int terreno[MAX_I][MAX_J];
+		void mapp_terrain();
+};
+
+class ModelPersonagem{
 	public: 
-		void set_parametros(float new_m, float new_b, float new_k);
-	
+    // posição x e y no mapa
+		int posicao[2];
+    // inicializa  personagem no mapa
+		void set_personagem(ModelMapp &M);
 };
 
-class View{
+class ControllerPersonagem{
 	public:
-		float a;
+		int posicao[2];
+		void move(ModelMapp &M, ModelPersonagem &P, int x, int y);
 };
 
-class Controller{
-	private:
-	
-	public:
-		float solve(Model M, float t, float T, float delta, float new_m, float new_b, float new_k, float *x_new, float *x_old, float *vx);
-	};
-
+class ViewerPersonagem{
+  		public:
+			ViewerPersonagem(ModelMapp &M, ModelPersonagem &P, ControllerPersonagem &C, bool rodando);
+};

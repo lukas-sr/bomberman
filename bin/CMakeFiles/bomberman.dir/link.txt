@@ -1,0 +1,1 @@
+/usr/bin/c++    -rdynamic CMakeFiles/bomberman.dir/src/main.cpp.o  -o bomberman  libfunc.a -lSDL2 -lSDL2_image 

@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../include/func.h
+iostream
+-
+
+/home/lukasr/Documents/Estudos/bomberman/src/main.cpp
+memory
+-
+iostream
+-
+SDL2/SDL.h
+-
+SDL2/SDL_image.h
+-
+func.h
+/home/lukasr/Documents/Estudos/bomberman/src/func.h
+

@@ -1,0 +1,4 @@
+/home/lukasr/Documents/Estudos/bomberman/bin/CMakeFiles/rebuild_cache.dir
+/home/lukasr/Documents/Estudos/bomberman/bin/CMakeFiles/edit_cache.dir
+/home/lukasr/Documents/Estudos/bomberman/bin/CMakeFiles/func.dir
+/home/lukasr/Documents/Estudos/bomberman/bin/CMakeFiles/bomberman.dir
