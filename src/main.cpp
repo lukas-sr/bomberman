@@ -60,9 +60,6 @@ class ControllerPersonagem{
 };
 
 void ControllerPersonagem::move(ModelMapp &M, ModelPersonagem &P, int x, int y){
-	
-	
-	
 	M.terreno[P.posicao[0]][P.posicao[1]] = 1; //Desocupa posicao antiga
 	
 	P.posicao[0] = P.posicao[0] +x;
@@ -83,14 +80,12 @@ void ControllerPersonagem::move(ModelMapp &M, ModelPersonagem &P, int x, int y){
 }
 
 class ViewerPersonagem{
-  		private:
-
   		public:
-    			ViewerPersonagem(ModelMapp &M, ModelPersonagem &P, ControllerPersonagem &C, bool rodando);
-    			//void destroyer(ViewerPersonagem &V);
+			ViewerPersonagem(ModelMapp &M, ModelPersonagem &P, ControllerPersonagem &C, bool rodando);
 };
 
 ViewerPersonagem::ViewerPersonagem(ModelMapp &M, ModelPersonagem &P, ControllerPersonagem &C, bool rodando){
+
   // Inicializando o subsistema de video do SDL
 
   if ( SDL_Init (SDL_INIT_VIDEO) < 0 ) {
@@ -165,6 +160,7 @@ ViewerPersonagem::ViewerPersonagem(ModelMapp &M, ModelPersonagem &P, ControllerP
     	C.move(M,P,0,1);  
     	target.y = (P.posicao[1])*SECOES_Y;
 	}
+
     while (SDL_PollEvent(&evento)) {
     	if (evento.type == SDL_QUIT) {
         	rodando = false;
