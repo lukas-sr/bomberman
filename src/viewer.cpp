@@ -111,11 +111,11 @@ class ViewerPersonagem{
   		private:
 
   		public:
-    			ViewerPersonagem(ModelMapp &M, ModelPersonagem &P, ControllerPersonagem &C);
-    			void read_key();
+    			void view(ModelMapp &M, ModelPersonagem &P, ControllerPersonagem &C);
+    			void read_key(int &x, int &y);
 };
 
-ViewerPersonagem::ViewerPersonagem(ModelMapp &M, ModelPersonagem &P, ControllerPersonagem &C){
+void ViewerPersonagem::view(ModelMapp &M, ModelPersonagem &P, ControllerPersonagem &C){
   // Inicializando o subsistema de video do SDL
 
   if ( SDL_Init (SDL_INIT_VIDEO) < 0 ) {
@@ -172,7 +172,7 @@ ViewerPersonagem::ViewerPersonagem(ModelMapp &M, ModelPersonagem &P, ControllerP
 
   // Variaveis para verificar eventos
   SDL_Event evento; // eventos discretos
-  const Uint8* state = SDL_GetKeyboardState(nullptr); // estado do teclado
+//  const Uint8* state = SDL_GetKeyboardState(nullptr); // estado do teclado
 
  
    // Polling de eventos
@@ -184,7 +184,7 @@ ViewerPersonagem::ViewerPersonagem(ModelMapp &M, ModelPersonagem &P, ControllerP
    t = t+delta;
     */
 
-    
+ /* 
    if (state[SDL_SCANCODE_LEFT]){
     	C.move(M,P,-1,0);                     // altera mapa e posicao
     	target.x = (P.posicao[0])*SECOES_X;  // atualiza viewer com a nova posicao
@@ -200,9 +200,12 @@ ViewerPersonagem::ViewerPersonagem(ModelMapp &M, ModelPersonagem &P, ControllerP
    if (state[SDL_SCANCODE_DOWN]){
     	C.move(M,P,0,1);  
     	target.y = (P.posicao[1])*SECOES_Y;
-	}
-   while (SDL_PollEvent(&evento)) 
-      if (evento.type == SDL_QUIT) 
+	}*/
+	
+	target.x = (P.posicao[0])*SECOES_X;
+	target.y = (P.posicao[1])*SECOES_Y;		
+   	while (SDL_PollEvent(&evento)) 
+      		if (evento.type == SDL_QUIT) 
        
 		     
       // Exemplos de outros eventos.
@@ -232,29 +235,56 @@ ViewerPersonagem::ViewerPersonagem(ModelMapp &M, ModelPersonagem &P, ControllerP
 }
 
 
-void ViewerPersonagem::read_key(){
-
+void ViewerPersonagem::read_key(int &x, int &y){
 	
+	const Uint8* state = SDL_GetKeyboardState(nullptr);
 	
+	if (state[SDL_SCANCODE_LEFT]){
+ 	//C.move(M,P,-1,0);                     // altera mapa e posicao
+    	//target.x = (P.posicao[0])*SECOES_X;  // atualiza viewer com a nova posicao
+    	x = -1;
+    	y = 0;
+    	}
+   if (state[SDL_SCANCODE_RIGHT]){
+     	//C.move(M,P,1,0); 
+     	//target.x = (P.posicao[0])*SECOES_X;
+     	x = 1;
+    	y = 0;
+     	}
+   if (state[SDL_SCANCODE_UP]){ 
+    	//C.move(M,P,0,-1); 
+    	//target.y = (P.posicao[1])*SECOES_Y;
+    	x = 0;
+    	y = 1;
+    	}
+   if (state[SDL_SCANCODE_DOWN]){
+    	//C.move(M,P,0,1);  
+    	//target.y = (P.posicao[1])*SECOES_Y;
+    	x = 0;
+    	y = -1;
+	}
 	
 	}
 	
 int main() {
 
+	int h1,v1;
 	ModelMapp M;
 	ModelPersonagem P1;
 	ControllerPersonagem C1;
+	ViewerPersonagem V1;
 	M.mapp_terrain();
 	M.forbbid_terrain();
 	
 	P1.set_personagem(M,5,6);
 	bool rodando = true;
 	
-	
-	ViewerPersonagem V1(M,P1,C1);
-	
-
-  
+	while(rodando){
+		V1.read_key(h1,v1);
+		C1.move(M,P1,h1,v1);
+		V1.view(M,P1,C1);
+		
+  	}
   
    
   return 0;
